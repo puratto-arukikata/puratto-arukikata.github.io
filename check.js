@@ -4,7 +4,7 @@ const html = fs.readFileSync(__dirname + '/index.html', 'utf8');
 const grab = id => html.match(new RegExp(`<script id="${id}">([\\s\\S]*?)</script>`))[1];
 const ctx = {};
 new Function('ctx', grab('data') + grab('logic') +
-  '\nObject.assign(ctx,{TYPE_ORDER,QUESTIONS,SHELVES,SHELVES_PER_RESULT,calcType,pickShelves,shelfText});')(ctx);
+  '\nObject.assign(ctx,{TYPES,TYPE_ORDER,QUESTIONS,SHELVES,SHELVES_PER_RESULT,calcType,pickShelves,shelfText});')(ctx);
 const { TYPE_ORDER, QUESTIONS, SHELVES, calcType, pickShelves } = ctx;
 
 let ok = true;
@@ -16,6 +16,7 @@ const mainCnt = {}, subCnt = {};
 TYPE_ORDER.forEach(t => { mainCnt[t] = 0; subCnt[t] = 0; });
 QUESTIONS.forEach(q => q.choices.forEach(c => { mainCnt[c.main]++; subCnt[c.sub]++; }));
 check('選択肢は18個（3・4・4・4・3）', QUESTIONS.map(q => q.choices.length).join('・') === '3・4・4・4・3');
+check('選択肢のアイコンが、別のタイプのアイコンと重ならない', QUESTIONS.every(q => q.choices.every(c => TYPE_ORDER.every(t => ctx.TYPES[t].emoji !== c.emoji || t === c.main))));
 check('6タイプとも メイン3回・サブ3回', TYPE_ORDER.every(t => mainCnt[t] === 3 && subCnt[t] === 3));
 
 const counts = {}; TYPE_ORDER.forEach(t => counts[t] = 0);
