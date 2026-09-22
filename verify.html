@@ -1,241 +1,56 @@
 <!DOCTYPE html>
-<html lang="ja">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<html lang="ja"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<meta name="format-detection" content="telephone=no">
-<title>ぷらっとの歩き方 — ぷらっとBOOK</title>
+<title>ぷらっとの歩き方 — 検証ページ</title>
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root{--ink:#2D2417;--mid:#5E5140;--bg:#F7F3EC;--card:#fff;--line:#E5DDD0;--accent:#7B4F2E;--ok:#2E6B3A;--ng:#A33A2A}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"Hiragino Sans","Noto Sans JP","Yu Gothic",sans-serif;background:var(--bg);color:var(--ink);font-size:18px;line-height:1.7}
+main{max-width:760px;margin:0 auto;padding:32px 16px 64px}
+h1{font-size:1.6rem;margin-bottom:6px}
+.lead{color:var(--mid);margin-bottom:28px}
+section{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:22px 20px;margin-bottom:22px}
+h2{font-size:1.25rem;margin-bottom:6px}
+.what{color:var(--mid);font-size:1rem;margin-bottom:14px}
+button{font:inherit;font-weight:700;background:var(--accent);color:#fff;border:0;border-radius:12px;padding:12px 22px;cursor:pointer}
+button:disabled{opacity:.5;cursor:wait}
+.row{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+select{font:inherit;padding:8px 10px;border-radius:10px;border:1px solid var(--line)}
+.out{margin-top:16px}
+table{width:100%;border-collapse:collapse;margin-top:10px;font-variant-numeric:tabular-nums}
+th,td{border-bottom:1px solid var(--line);padding:6px 8px;text-align:left}
+td.n{text-align:right}
+.bar{height:14px;background:#C97B3A;border-radius:4px}
+.res{margin-top:10px;font-weight:700}
+.ok{color:var(--ok)} .ng{color:var(--ng)}
+.note{font-size:.95rem;color:var(--mid);margin-top:10px}
+footer{font-size:.9rem;color:var(--mid);text-align:center}
+</style></head><body>
+<main>
+<h1>ぷらっとの歩き方 検証ページ</h1>
+<p class="lead">アプリ本体と同じ配点データと計算式を使って、診断のしくみを確かめるページです。ボタンを押すと、このブラウザの中で計算します（どこにも送信しません）。</p>
 
-  /* 文字サイズは rem（1rem＝標準16px）。スマホ側の文字サイズ設定に合わせて全体が大きくなる */
-  html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
-  @supports (font: -apple-system-body) {
-    html { font: -apple-system-body; }   /* iPhoneの「文字サイズ」設定に従う */
-  }
+<section>
+<h2>① タイプの出やすさ（全576通り）</h2>
+<p class="what">5問の答え方すべて（3×4×4×4×3＝576通り）を1つずつ計算し、どのタイプに何回なるかを数えます。何度押しても同じ結果になります。</p>
+<button id="b1">計算する</button>
+<div class="out" id="o1"></div>
+</section>
 
-  :root {
-    --bg:       #F7F3EC;
-    --card:     #FFFFFF;
-    --ink:      #2D2417;
-    --mid:      #5E5140;   /* 補助の文字（背景とのコントラスト比 7.0） */
-    --accent:   #C97B3A;   /* 飾り（点・線・枠）専用。文字には使わない */
-    --link:     #9A5520;   /* リンク・タグの文字/背景（コントラスト比 5.1以上） */
-    --selected: #7B4F2E;
-    --border:   #E5DDD0;
-    --serif: "Yu Mincho", "YuMincho", "Hiragino Mincho ProN", "ヒラギノ明朝 ProN W3", "Georgia", serif;
-    --sans:  "Hiragino Sans", "Hiragino Kaku Gothic ProN", "ヒラギノ角ゴ ProN W3", "Meiryo", "メイリオ", sans-serif;
-  }
+<section>
+<h2>② 棚の出方の公平さ（シミュレーション）</h2>
+<p class="what">アプリと同じ「10棚から3棚をランダムに選ぶ」処理をくり返し、各棚が出た割合を数えます。理論上はどの棚も 3÷10＝30% です。ランダムなので、押すたびに少しずつ値が変わります。</p>
+<div class="row">
+<select id="n2"><option value="10000">1万回</option><option value="100000" selected>10万回</option><option value="1000000">100万回</option></select>
+<button id="b2">試す</button>
+</div>
+<div class="out" id="o2"></div>
+</section>
 
-  body {
-    background: var(--bg);
-    color: var(--ink);
-    font-family: var(--sans);
-    font-size: 1rem;
-    min-height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
-    padding: 24px 16px 48px;
-  }
+<footer>企画・制作：田中里実・金銀珠</footer>
+</main>
 
-  .app { width: 100%; max-width: 440px; }
-
-  /* ── Screens ── */
-  .screen { display: none; animation: fadeIn .4s ease; }
-  .screen.active { display: block; }
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-  @media (prefers-reduced-motion: reduce) { .screen, .type-stamp { animation: none; } }
-
-  /* ── Welcome ── */
-  .welcome-header { text-align: center; padding: 40px 0 28px; }
-  .welcome-logo { font-family: var(--serif); font-size: 1.875rem; font-weight: 700; color: var(--ink); letter-spacing: .05em; }
-  .welcome-sub { font-size: .875rem; color: var(--mid); margin-top: 6px; letter-spacing: .08em; }
-  .welcome-divider { width: 40px; height: 2px; background: var(--accent); margin: 20px auto; }
-  .welcome-lead { font-family: var(--serif); font-size: 1.25rem; font-weight: 700; line-height: 1.8; text-align: center; color: var(--ink); margin-bottom: 14px; }
-  .safe-note { font-size: .875rem; color: var(--mid); text-align: center; line-height: 1.8; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 8px 0; margin: -16px auto 28px; max-width: 300px; }
-  .welcome-note { font-size: 1rem; color: var(--mid); text-align: center; line-height: 1.8; margin-bottom: 32px; }
-
-  /* ── Progress ── */
-  .progress { display: flex; justify-content: center; gap: 10px; margin-bottom: 24px; }
-  .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--border); transition: background .3s; }
-  .dot.done { background: var(--accent); }
-  .dot.current { background: var(--selected); }
-
-  /* ── Question ── */
-  .q-label { font-size: .875rem; font-weight: 700; letter-spacing: .1em; color: var(--mid); text-align: center; margin-bottom: 12px; }
-  .q-text { font-family: var(--serif); font-size: 1.375rem; font-weight: 700; line-height: 1.6; text-align: center; color: var(--ink); margin-bottom: 24px; }
-
-  /* ── Choices ── */
-  .choices { display: flex; flex-direction: column; gap: 12px; margin-bottom: 28px; }
-  .choice {
-    background: var(--card); border: 2px solid var(--border); border-radius: 12px;
-    padding: 16px 18px; min-height: 60px; cursor: pointer; transition: border-color .2s, background .2s, transform .1s;
-    display: flex; align-items: center; gap: 14px;
-    font: inherit; color: inherit; text-align: left; width: 100%;
-  }
-  .choice:hover { border-color: var(--accent); }
-  .choice.selected { border-color: var(--selected); background: #FDF6EE; box-shadow: inset 0 0 0 1px var(--selected); }
-  .choice-emoji { font-size: 1.5rem; flex-shrink: 0; }
-  .choice-text { font-size: 1.0625rem; line-height: 1.6; color: var(--ink); }
-
-  /* ── Buttons ── */
-  .btn {
-    width: 100%; min-height: 56px; padding: 14px 16px; border: none; border-radius: 12px;
-    font-family: var(--sans); font-size: 1.0625rem; font-weight: 700; cursor: pointer;
-    transition: background .2s, transform .1s; letter-spacing: .05em;
-  }
-  .btn:active { transform: scale(.98); }
-  .btn-primary { background: var(--selected); color: #fff; }
-  .btn-primary:hover { background: #6A4228; }
-  .btn-primary:disabled { background: var(--border); color: var(--mid); cursor: default; transform: none; }
-  .btn-secondary { background: var(--card); color: var(--selected); border: 2px solid var(--selected); margin-top: 12px; line-height: 1.5; }
-  .btn-ghost { background: transparent; color: var(--link); font-size: 1rem; min-height: 48px; padding: 12px; text-decoration: underline; text-underline-offset: 4px; }
-  .btn-row { display: flex; gap: 10px; align-items: center; }
-  .btn-row .btn-ghost { width: auto; flex: 0 0 auto; }
-
-  /* ── Type picker (紙の診断シートから) ── */
-  .picker-lead { font-size: 1rem; color: var(--mid); text-align: center; line-height: 1.8; margin-bottom: 24px; }
-  .type-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
-  .type-btn {
-    background: var(--card); border: 2px solid var(--border); border-radius: 12px;
-    padding: 18px 8px; min-height: 104px; cursor: pointer; font: inherit; color: var(--ink);
-    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
-  }
-  .type-btn:hover { border-color: var(--accent); }
-  .type-btn .e { font-size: 2rem; }
-  .type-btn .n { font-family: var(--serif); font-size: 1.125rem; font-weight: 700; }
-
-  /* ── Result ── */
-  .result-top { text-align: center; padding: 32px 0 24px; }
-  .type-stamp { display: inline-block; animation: stamp .5s cubic-bezier(.175,.885,.32,1.275) both; }
-  @keyframes stamp { from { opacity: 0; transform: scale(.7); } to { opacity: 1; transform: scale(1); } }
-  .type-emoji { font-size: 3rem; display: block; margin-bottom: 10px; }
-  .type-name { font-family: var(--serif); font-size: 2rem; font-weight: 700; color: var(--ink); letter-spacing: .08em; }
-  .type-tag { display: inline-block; margin-top: 10px; background: var(--link); color: #fff; font-size: .875rem; font-weight: 700; padding: 4px 14px; border-radius: 20px; letter-spacing: .08em; }
-
-  .result-desc { background: var(--card); border-radius: 16px; padding: 20px; margin-bottom: 28px; border: 2px solid var(--border); }
-  .result-desc p { font-size: 1.0625rem; line-height: 1.9; color: var(--ink); }
-
-  .shelves-label { font-size: 1rem; font-weight: 700; letter-spacing: .08em; color: var(--mid); margin-bottom: 12px; }
-  .shelf-cards { display: flex; flex-direction: column; gap: 14px; margin-bottom: 28px; }
-  .shelf-card { background: var(--card); border: 2px solid var(--border); border-radius: 14px; padding: 18px 16px; display: flex; gap: 14px; align-items: flex-start; }
-  .shelf-badge {
-    background: var(--selected); color: #fff; border-radius: 8px; padding: 6px 8px;
-    font-size: .8125rem; font-weight: 700; letter-spacing: .05em; flex-shrink: 0;
-    text-align: center; line-height: 1.3; min-width: 56px;
-  }
-  .shelf-badge b { display: block; font-size: 1.25rem; }
-  .shelf-info { flex: 1; min-width: 0; }
-  .shelf-name { font-family: var(--serif); font-size: 1.1875rem; font-weight: 700; color: var(--ink); margin-bottom: 8px; line-height: 1.4; }
-  .shelf-reason { font-size: 1rem; color: var(--ink); line-height: 1.8; }
-
-  .privacy { font-size: .875rem; color: var(--mid); text-align: center; line-height: 1.8; margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border); }
-
-  .about-head { padding: 28px 0 16px; text-align: center; }
-  .about-title { font-family: var(--serif); font-size: 1.375rem; font-weight: 700; color: var(--ink); }
-  .about-rule { width: 32px; height: 2px; background: var(--accent); margin: 14px auto; }
-  .about-card { background: var(--card); border-radius: 16px; border: 2px solid var(--border); padding: 20px; margin-bottom: 16px; }
-  .about-card:last-of-type { margin-bottom: 28px; }
-  .official { display: inline-block; margin-bottom: 14px; background: var(--selected); color: #fff; font-size: .875rem; font-weight: 700; letter-spacing: .08em; padding: 4px 14px; border-radius: 20px; }
-  .credit { font-size: .875rem; color: var(--mid); text-align: center; line-height: 1.8; margin-top: 20px; }
-  .about-kicker { font-size: .875rem; font-weight: 700; color: var(--mid); letter-spacing: .05em; margin-bottom: 8px; }
-  .about-card p { font-size: 1rem; line-height: 1.9; color: var(--ink); }
-</style>
-</head>
-<body>
-<div class="app">
-
-  <!-- ① Welcome -->
-  <div class="screen active" id="s-welcome">
-    <div class="welcome-header">
-      <div class="official">ぷらっとBOOK公認アプリ</div>
-      <div class="welcome-logo">ぷらっとの歩き方</div>
-      <div class="welcome-sub">ぷらっとBOOK — 棚診断</div>
-      <div class="welcome-divider"></div>
-      <p class="welcome-lead">今日の自分に合った棚を<br>見つけましょう。</p>
-      <p class="welcome-note">
-        5つの質問に答えると、<br>
-        今日のあなたにおすすめの棚を<br>3つご提案します。
-      </p>
-      <p class="safe-note">個人情報を入力する画面はありません。<br>答えた内容はどこにも送られません。</p>
-    </div>
-    <button class="btn btn-primary" onclick="startQuiz()">はじめる</button>
-    <button class="btn btn-secondary" onclick="go('s-picker')">紙の診断シートで<br>タイプがわかっている方</button>
-    <button class="btn btn-ghost" onclick="go('s-about')">この診断について</button>
-    <p class="credit">企画・制作：田中里実・金銀珠</p>
-  </div>
-
-  <!-- 紙の診断シートから直接 -->
-  <div class="screen" id="s-picker">
-    <div class="about-head">
-      <div class="about-title">あなたのタイプは？</div>
-      <div class="about-rule"></div>
-    </div>
-    <p class="picker-lead">紙の診断シートで出たタイプを選ぶと、<br>おすすめの棚にすぐ進めます。</p>
-    <div class="type-grid" id="type-grid"></div>
-    <button class="btn btn-ghost" onclick="go('s-welcome')">もどる</button>
-  </div>
-
-  <!-- About -->
-  <div class="screen" id="s-about">
-    <div class="about-head">
-      <div class="about-title">この診断について</div>
-      <div class="about-rule"></div>
-    </div>
-    <div class="about-card">
-      <div class="about-kicker">読書案内研究（Readers' Advisory）</div>
-      <p>図書館情報学では、「どんな本を読みましたか？」より「なぜその本が好きでしたか？」を問う方が、より精度の高い推薦ができると言われています。この考え方を<em>appeal factors</em>（惹かれる要素）と呼びます（Saricks, 2005）。本のジャンルではなく、ペース・トーン・惹かれる要素から、今日のあなたのタイプを見つけます。棚は毎回ちがう3つと出会えるようにし、あなたのタイプの目線で楽しみ方をご案内します。</p>
-    </div>
-    <div class="about-card">
-      <div class="about-kicker">自己決定理論（Ryan &amp; Deci, 2000）</div>
-      <p>自分で選んだ、という感覚が読書への意欲につながります。この診断は答えを押しつけるのではなく、「今日の自分」が選べるための入口を作ることを目的にしています。</p>
-    </div>
-    <div class="about-card">
-      <div class="about-kicker">読書動機づけ研究（Webber et al., 2025）</div>
-      <p>本好きな人ほど「自分の好みはこれ」という自己像が固まり、新しい棚に自分からは行きにくくなることがあります。「今の自分」の状態から入ることで、いつもと違う棚との出会いが生まれます。</p>
-    </div>
-    <div class="about-card">
-      <div class="about-kicker">制作</div>
-      <p>企画・制作：田中里実・金銀珠<br>協力：ぷらっとBOOK（棚オーナーの皆さま）</p>
-    </div>
-    <button class="btn btn-primary" onclick="go('s-welcome')">もどる</button>
-  </div>
-
-  <!-- ② 質問（データから生成） -->
-  <div class="screen" id="s-question">
-    <div class="progress" id="q-progress"></div>
-    <p class="q-label" id="q-label"></p>
-    <p class="q-text" id="q-text"></p>
-    <div class="choices" id="q-choices"></div>
-    <div class="btn-row">
-      <button class="btn btn-ghost" id="btn-back" onclick="prevQuestion()">もどる</button>
-      <button class="btn btn-primary" id="btn-next" disabled onclick="nextQuestion()">次へ</button>
-    </div>
-  </div>
-
-  <!-- ③ Result -->
-  <div class="screen" id="s-result">
-    <div class="result-top">
-      <div class="type-stamp">
-        <span class="type-emoji" id="r-emoji"></span>
-        <div class="type-name" id="r-name"></div>
-        <span class="type-tag">今日のあなた</span>
-      </div>
-    </div>
-    <div class="result-desc"><p id="r-desc"></p></div>
-    <p class="shelves-label">今日おすすめの棚</p>
-    <div class="shelf-cards" id="r-shelves"></div>
-    <button class="btn btn-primary" onclick="restart()">もう一度診断する</button>
-    <p class="privacy">個人情報を入力する画面はありません。<br>答えた内容はあなたのスマホの中だけで処理されます。<br>どこかに送られたり、保存されたりすることはありません。</p>
-  </div>
-
-</div><!-- /app -->
-
-<!-- ════════════════════════════════════════════════════════════════════════
-     データ：文言・配点・棚の差し替えはここだけで行う
-     ════════════════════════════════════════════════════════════════════════ -->
 <script id="data">
 // タイプ（表示順＝紙の診断シートの並び）
 const TYPE_ORDER = ['深海', '窓辺', '地図', '夕暮れ', '焚き火', '迷子'];
@@ -393,10 +208,6 @@ const SHELVES = [
 
 const PLACEHOLDER_TEXT = 'この棚の紹介文は準備中です。ぜひ棚の前で、実際に手に取ってみてください。';
 </script>
-
-<!-- ════════════════════════════════════════════════════════════════════════
-     ロジック：画面に依存しない計算（自動チェックの対象）
-     ════════════════════════════════════════════════════════════════════════ -->
 <script id="logic">
 // 質問ごとの点数を出す。answers = { q1: 選択肢の番号, ... }
 function scoreByQuestion(answers) {
@@ -443,103 +254,51 @@ function shelfText(shelf, typeKey) {
   return (shelf.texts && shelf.texts[typeKey]) || PLACEHOLDER_TEXT;
 }
 </script>
+<script>
+const $ = id => document.getElementById(id);
+const mark = ok => ok ? '<span class="ok">✅ OK</span>' : '<span class="ng">❌ 要確認</span>';
 
-<!-- ════════════════════════════════════════════════════════════════════════
-     画面の操作
-     ════════════════════════════════════════════════════════════════════════ -->
-<script id="ui">
-const answers = {};
-let qIndex = 0;
+$('b1').onclick = () => {
+  const counts = {}; TYPE_ORDER.forEach(t => counts[t] = 0);
+  let n = 0, undecided = 0;
+  (function walk(i, ans) {
+    if (i === QUESTIONS.length) { n++; const t = calcType(ans); TYPE_ORDER.includes(t) ? counts[t]++ : undecided++; return; }
+    QUESTIONS[i].choices.forEach((_, k) => walk(i + 1, { ...ans, [QUESTIONS[i].key]: k }));
+  })(0, {});
+  const vals = Object.values(counts), max = Math.max(...vals), min = Math.min(...vals);
+  const expected = { 深海: 83, 窓辺: 86, 地図: 115, 夕暮れ: 93, 焚き火: 113, 迷子: 86 };
+  const same = TYPE_ORDER.every(t => counts[t] === expected[t]);
+  $('o1').innerHTML = '<table><tr><th>タイプ</th><th class="n">回数</th><th class="n">割合</th><th style="width:40%"></th></tr>' +
+    TYPE_ORDER.map(t => `<tr><td>${TYPES[t].emoji} ${t}</td><td class="n">${counts[t]}</td><td class="n">${(counts[t] / n * 100).toFixed(1)}%</td><td><div class="bar" style="width:${counts[t] / max * 100}%"></div></td></tr>`).join('') +
+    '</table>' +
+    `<p class="res">合計 ${n}通り ${mark(n === 576)}</p>` +
+    `<p class="res">どの答え方でも1タイプに決まる（未決定 ${undecided}件） ${mark(undecided === 0)}</p>` +
+    `<p class="res">最多÷最少 ＝ ${max}÷${min} ＝ ${(max / min).toFixed(2)}倍</p>` +
+    `<p class="res">配点確定版の回数と一致 ${mark(same)}</p>` +
+    '<p class="note">同点のときは Q4 → Q3 → Q2 → Q1 → Q5 の順で決めています（アプリ・紙の診断シート共通）。</p>';
+};
 
-function esc(s) {
-  return String(s).replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
-}
-
-function go(screenId) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById(screenId).classList.add('active');
-  window.scrollTo(0, 0);
-}
-
-function startQuiz() {
-  Object.keys(answers).forEach(k => delete answers[k]);
-  qIndex = 0;
-  renderQuestion();
-  go('s-question');
-}
-
-function renderQuestion() {
-  const q = QUESTIONS[qIndex];
-  const total = QUESTIONS.length;
-
-  document.getElementById('q-progress').innerHTML = QUESTIONS.map((_, i) =>
-    `<div class="dot ${i < qIndex ? 'done' : i === qIndex ? 'current' : ''}"></div>`).join('');
-  document.getElementById('q-label').textContent = `Q ${qIndex + 1} / ${total}　　${q.label}`;
-  document.getElementById('q-text').innerHTML = q.text;
-
-  document.getElementById('q-choices').innerHTML = q.choices.map((c, i) => `
-    <button type="button" class="choice${answers[q.key] === i ? ' selected' : ''}" onclick="choose(${i})">
-      <span class="choice-emoji">${c.emoji}</span>
-      <span class="choice-text">${esc(c.text)}</span>
-    </button>`).join('');
-
-  const next = document.getElementById('btn-next');
-  next.textContent = qIndex === total - 1 ? '診断する' : '次へ';
-  next.disabled = answers[q.key] === undefined;
-}
-
-function choose(i) {
-  answers[QUESTIONS[qIndex].key] = i;
-  renderQuestion();
-}
-
-function nextQuestion() {
-  if (qIndex < QUESTIONS.length - 1) {
-    qIndex++;
-    renderQuestion();
-    window.scrollTo(0, 0);
-  } else {
-    showResult(calcType(answers));
-  }
-}
-
-function prevQuestion() {
-  if (qIndex === 0) { go('s-welcome'); return; }
-  qIndex--;
-  renderQuestion();
-  window.scrollTo(0, 0);
-}
-
-function showResult(typeKey) {
-  const type = TYPES[typeKey];
-  document.getElementById('r-emoji').textContent = type.emoji;
-  document.getElementById('r-name').textContent = type.name;
-  document.getElementById('r-desc').textContent = type.desc;
-
-  document.getElementById('r-shelves').innerHTML = pickShelves(SHELVES, SHELVES_PER_RESULT).map(s => `
-    <div class="shelf-card">
-      <div class="shelf-badge">棚<b>${s.id}</b></div>
-      <div class="shelf-info">
-        <div class="shelf-name">${esc(s.name)}</div>
-        <div class="shelf-reason">${esc(shelfText(s, typeKey))}</div>
-      </div>
-    </div>`).join('');
-
-  go('s-result');
-}
-
-function restart() {
-  Object.keys(answers).forEach(k => delete answers[k]);
-  qIndex = 0;
-  go('s-welcome');
-}
-
-// 紙の診断シートからの入口
-document.getElementById('type-grid').innerHTML = TYPE_ORDER.map(t => `
-  <button type="button" class="type-btn" onclick="showResult('${t}')">
-    <span class="e">${TYPES[t].emoji}</span>
-    <span class="n">${TYPES[t].name}</span>
-  </button>`).join('');
+$('b2').onclick = () => {
+  const btn = $('b2'); btn.disabled = true; $('o2').textContent = '計算中…';
+  setTimeout(() => {
+    const N = +$('n2').value, hit = {}; SHELVES.forEach(s => hit[s.id] = 0);
+    let dup = 0;
+    for (let i = 0; i < N; i++) {
+      const p = pickShelves(SHELVES, SHELVES_PER_RESULT);
+      if (new Set(p.map(s => s.id)).size !== p.length) dup++;
+      p.forEach(s => hit[s.id]++);
+    }
+    const rates = SHELVES.map(s => hit[s.id] / N * 100);
+    const lo = Math.min(...rates), hi = Math.max(...rates);
+    $('o2').innerHTML = '<table><tr><th>棚</th><th class="n">出た回数</th><th class="n">割合</th></tr>' +
+      SHELVES.map((s, i) => `<tr><td>棚${s.id}</td><td class="n">${hit[s.id].toLocaleString()}</td><td class="n">${rates[i].toFixed(2)}%</td></tr>`).join('') +
+      '</table>' +
+      `<p class="res">${N.toLocaleString()}回中、各棚の割合は ${lo.toFixed(1)}〜${hi.toFixed(1)}%</p>` +
+      `<p class="res">同じ回に同じ棚が2回出た回数：${dup}回 ${mark(dup === 0)}</p>` +
+      `<p class="res">どの棚も29〜31%に収まる ${mark(rates.every(r => r > 29 && r < 31))}</p>` +
+      '<p class="note">回数を増やすほど、30%に近づきます。これは棚の出方に偏りがないことを確かめるもので、推薦の当たり外れを測るものではありません。</p>';
+    btn.disabled = false;
+  }, 30);
+};
 </script>
-</body>
-</html>
+</body></html>
